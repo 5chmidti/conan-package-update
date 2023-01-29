@@ -3,6 +3,7 @@ import os
 import re
 from sys import argv, path
 from types import ModuleType
+from packaging import version
 
 
 def get_requires_lists(conan_package: ModuleType) -> str | None:
@@ -33,7 +34,7 @@ def get_package_update(package: str) -> update_type | None:
     output = stream.read().strip()
     _, found_package_version = get_name_version_pair(output)
 
-    if package_version < found_package_version:
+    if version.parse(package_version) < version.parse(found_package_version):
         return (package_name, package_version, found_package_version)
 
 

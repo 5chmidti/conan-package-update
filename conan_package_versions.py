@@ -48,13 +48,11 @@ def update_conanfile(updates: list[update_type]):
 
 
 def get_updates(requires_list: str):
-    updates: list[update_type] = []
-    for package in requires_list:
-        update = get_package_update(package)
-        if update is None:
-            continue
-        updates.append(update)
-    return updates
+    return [
+        update
+        for update in map(lambda package: get_package_update(package), requires_list)
+        if update is not None
+    ]
 
 
 if __name__ == "__main__":

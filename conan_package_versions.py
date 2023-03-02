@@ -31,8 +31,12 @@ def get_package_update(package: str) -> update_type | None:
     output = stream.read().strip()
     _, found_package_version = get_name_version_pair(output)
 
-    if version.parse(package_version) < version.parse(found_package_version):
-        return (package_name, package_version, found_package_version)
+    try:
+        if version.parse(package_version) < version.parse(found_package_version):
+            return (package_name, package_version, found_package_version)
+    except version.InvalidVersion:
+        if package_version < found_package_version:
+            return (package_name, package_version, found_package_version)
 
 
 def update_conanfile(updates: list[update_type]):

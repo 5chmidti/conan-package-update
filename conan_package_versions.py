@@ -4,18 +4,15 @@ import re
 from sys import argv, path
 from types import ModuleType
 from packaging import version
+from rich.logging import RichHandler
+import logging
 
+FORMAT = "%(message)s"
+logging.basicConfig(
+    level="INFO", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
+)
 
-def get_requires_lists(conan_package: ModuleType) -> str | None:
-    for _, obj in inspect.getmembers(conan_package):
-        if inspect.isclass(obj):
-            requires: list[tuple[str, str]] = list(
-                filter(lambda val: val[0] == "requires", inspect.getmembers(obj))
-            )
-            if len(requires) == 0:
-                continue
-            return requires[0][1]
-    return None
+log = logging.getLogger("rich")
 
 
 def get_name_version_pair(package: str) -> tuple[str, str]:

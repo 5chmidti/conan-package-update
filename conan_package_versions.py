@@ -45,7 +45,7 @@ update_type = tuple[str, str, str]
 
 def get_package_update(package: str) -> update_type | None:
     package_name, package_version = get_name_version_pair(package)
-    stream = os.popen(f"conan search {package_name} -r conancenter | tail -n1")
+    stream = os.popen(f"conan search {package_name} -r conancenter 2>&1 | tail -n1")
     output = stream.read().strip()
     _, found_package_version = get_name_version_pair(output)
 

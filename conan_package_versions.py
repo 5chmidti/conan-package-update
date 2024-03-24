@@ -104,12 +104,12 @@ def init_argparse() -> ArgumentParser:
         "-s",
         help="interative update on a per package basis",
         type=bool,
-        action=BooleanOptionalAction
+        action=BooleanOptionalAction,
     )
     return parser
 
 
-def run_for_project(project_path: str, single:bool):
+def run_for_project(project_path: str, single: bool):
     log.info(f"checking {project_path}")
     if not has_conanfile(project_path):
         log.info(f"no conanfile found in {project_path}")
@@ -131,8 +131,10 @@ def run_for_project(project_path: str, single:bool):
         log.info(f"updates: {updates}")
         if single:
             for update in updates:
-                if Confirm.ask(f"update package {update[0]} from {update[1]} to {update[2]}?"):
-                    update_conanfile(project_path,[update])
+                if Confirm.ask(
+                    f"update package {update[0]} from {update[1]} to {update[2]}?"
+                ):
+                    update_conanfile(project_path, [update])
         else:
             if Confirm.ask("update conanfile?"):
                 update_conanfile(project_path, updates)
@@ -156,5 +158,5 @@ if __name__ == "__main__":
 
     project_path: list[str] = args.paths
     for project in project_path:
-        run_for_project(get_folder_path(project),args.single)
+        run_for_project(get_folder_path(project), args.single)
 

@@ -10,6 +10,7 @@ from rich.prompt import Confirm
 from rich.logging import RichHandler
 import logging
 from argparse import ArgumentParser, BooleanOptionalAction
+from conan import ConanFile
 
 FORMAT = "%(message)s"
 logging.basicConfig(
@@ -19,16 +20,28 @@ logging.basicConfig(
 log = logging.getLogger("rich")
 
 
+def get_requirements(potential_class: type):
+    instance = potential_class()
+    if "requirements" in dir(instance):
+        instance.requirements()
+    if "build_requirements" in dir(instance):
+        instance.build_requirements()
+
+    return map(lambda x: repr(x.ref), instance.requires.values())
+
+
 def get_requires_lists(conan_package: ModuleType) -> list[str]:
     res: list[str] = []
     for _, potential_class in inspect.getmembers(conan_package):
         if inspect.isclass(potential_class):
-            instance = potential_class()
-            if "requirements" in dir(instance):
-                instance.requirements()
-            if "build_requirements" in dir(instance):
-                instance.build_requirements()
-            res += map(lambda x: repr(x.ref), instance.requires.values())
+            classtree = inspect.getclasstree([ConanFile, potential_class])
+            for classes in classtree:
+                for tree_for_class in classes:
+                    if isinstance(tree_for_class, list):
+                        package, maybe_conan_file_type = tree_for_class[0]
+                        assert maybe_conan_file_type[0] == ConanFile
+                        res += get_requirements(package)
+
     log.info(f"requirements: {res}")
     return res
 
